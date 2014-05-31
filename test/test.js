@@ -1,1 +1,1 @@
-steal("shadow/test/shadow_test.js");
+steal("shadow/test/shadow_new_test.js");
