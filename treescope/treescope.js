@@ -1,4 +1,5 @@
-steal(function(scope) {
+steal("shadow/util/shadow.js",
+			function(scope) {
 	/**
 	 * A tree scope represents the root of a tree. All nodes in a tree point to
 	 * the same TreeScope object. The tree scope of a node get set the first time
@@ -22,8 +23,8 @@ steal(function(scope) {
 	}
 
   TreeScope.prototype = {
-    get renderer() {
-      if (this.root instanceof scope.wrappers.ShadowRoot) {
+    renderer: function(){
+      if (this.root instanceof scope.ShadowRoot) {
         return scope.getRendererForHost(this.root.host);
       }
       return null;
@@ -62,8 +63,9 @@ steal(function(scope) {
     return node.treeScope_ = treeScope;
   }
 
-	TreeScope.getTreeScope = getTreeScope;
-	TreeScope.setTreeScope = setTreeScope;
+	scope.TreeScope = TreeScope;
+	scope.getTreeScope = getTreeScope;
+	scope.setTreeScope = setTreeScope;
 
 	return TreeScope;
 });

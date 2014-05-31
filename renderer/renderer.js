@@ -1,48 +1,47 @@
-steal("shadow/shadowroot",
-			"shadow/util/extend.js", function(ShadowRoot, extend){
+steal("shadow/util/shadow.js",
+			"shadow/shadowroot",
+			"mutationobserver/weakmap",
+			"shadow/util/extend.js", function(scope, ShadowRoot, WeakMap, extend){
   /*var Element = scope.wrappers.Element;
   var HTMLContentElement = scope.wrappers.HTMLContentElement;
   var HTMLShadowElement = scope.wrappers.HTMLShadowElement;
   var Node = scope.wrappers.Node;
-  var ShadowRoot = scope.wrappers.ShadowRoot;
-  var assert = scope.assert;
-  var getTreeScope = scope.getTreeScope;
-  var mixin = scope.mixin;
-  var oneOf = scope.oneOf;
+  var ShadowRoot = scope.wrappers.ShadowRoot;*/
+	var getTreeScope = scope.getTreeScope;
+  /*var oneOf = scope.oneOf;
   var unwrap = scope.unwrap;
   var wrap = scope.wrap;*/
 
-  /**
-   * Updates the fields of a wrapper to a snapshot of the logical DOM as needed.
-   * Up means parentNode
-   * Sideways means previous and next sibling.
-   * @param {!Node} wrapper
-   */
-  function updateWrapperUpAndSideways(wrapper) {
-    wrapper.previousSibling_ = wrapper.previousSibling;
-    wrapper.nextSibling_ = wrapper.nextSibling;
-    wrapper.parentNode_ = wrapper.parentNode;
-  }
+	/**
+	 * Updates the fields of a wrapper to a snapshot of the logical DOM as needed.
+	 * Up means parentNode
+	 * Sideways means previous and next sibling.
+	 * @param {!Node} wrapper
+	 */
+	function updateWrapperUpAndSideways(wrapper) {
+		wrapper.previousSibling_ = wrapper.previousSibling;
+		wrapper.nextSibling_ = wrapper.nextSibling;
+		wrapper.parentNode_ = wrapper.parentNode;
+	}
 
-  /**
-   * Updates the fields of a wrapper to a snapshot of the logical DOM as needed.
-   * Down means first and last child
-   * @param {!Node} wrapper
-   */
-  function updateWrapperDown(wrapper) {
-    wrapper.firstChild_ = wrapper.firstChild;
-    wrapper.lastChild_ = wrapper.lastChild;
-  }
+	/**
+	 * Updates the fields of a wrapper to a snapshot of the logical DOM as needed.
+	 * Down means first and last child
+	 * @param {!Node} wrapper
+	 */
+	function updateWrapperDown(wrapper) {
+		wrapper.firstChild_ = wrapper.firstChild;
+		wrapper.lastChild_ = wrapper.lastChild;
+	}
 
-  function updateAllChildNodes(parentNodeWrapper) {
-    assert(parentNodeWrapper instanceof Node);
-    for (var childWrapper = parentNodeWrapper.firstChild;
-         childWrapper;
-         childWrapper = childWrapper.nextSibling) {
-      updateWrapperUpAndSideways(childWrapper);
-    }
-    updateWrapperDown(parentNodeWrapper);
-  }
+	function updateAllChildNodes(parentNode) {
+		for (var child = parentNode.firstChild;
+					child;
+					child = child.nextSibling) {
+			updateWrapperUpAndSideways(child);
+		}
+		updateWrapperDown(parentNode);
+	}
 
   function insertBefore(parentNodeWrapper, newChildWrapper, refChildWrapper) {
     var parentNode = unwrap(parentNodeWrapper);
@@ -506,23 +505,23 @@ steal("shadow/shadowroot",
     return null;
   }
 
-  function destributeNodeInto(child, insertionPoint) {
-    getDistributedNodes(insertionPoint).push(child);
-    var points = destinationInsertionPointsTable.get(child);
-    if (!points)
-      destinationInsertionPointsTable.set(child, [insertionPoint]);
-    else
-      points.push(insertionPoint);
-  }
+	function destributeNodeInto(child, insertionPoint) {
+		getDistributedNodes(insertionPoint).push(child);
+		var points = destinationInsertionPointsTable.get(child);
+		if (!points)
+			destinationInsertionPointsTable.set(child, [insertionPoint]);
+		else
+			points.push(insertionPoint);
+	}
 
-  function getDestinationInsertionPoints(node) {
-    return destinationInsertionPointsTable.get(node);
-  }
+	function getDestinationInsertionPoints(node) {
+		return destinationInsertionPointsTable.get(node);
+	}
 
-  function resetDestinationInsertionPoints(node) {
-    // IE11 crashes when delete is used.
-    destinationInsertionPointsTable.set(node, undefined);
-  }
+	function resetDestinationInsertionPoints(node) {
+		// IE11 crashes when delete is used.
+		destinationInsertionPointsTable.set(node, undefined);
+	}
 
   // AllowedSelectors :
   //   TypeSelector
@@ -583,7 +582,7 @@ steal("shadow/shadowroot",
 
   function render(host) {
     new ShadowRenderer(host).render();
-  };
+  }
 
   // Need to rerender shadow host when:
   //
@@ -647,4 +646,4 @@ steal("shadow/shadowroot",
     remove: remove,
   };
 
-})(window.ShadowDOMPolyfill);
+});

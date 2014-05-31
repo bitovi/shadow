@@ -1,15 +1,11 @@
-steal("shadow/treescope",
+steal("shadow/util/shadow.js",
+			"shadow/treescope",
 			"mutationobserver/weakmap",
-			"shadow/util/extend.js", function(TreeScope, WeakMap, extend) {
-  /*var elementFromPoint = scope.elementFromPoint;
+			"shadow/util/extend.js", function(scope, TreeScope, WeakMap, extend) {
+  var elementFromPoint = scope.elementFromPoint;
   var getInnerHTML = scope.getInnerHTML;
   var getTreeScope = scope.getTreeScope;
-  var mixin = scope.mixin;
-  var rewrap = scope.rewrap;
   var setInnerHTML = scope.setInnerHTML;
-  var unwrap = scope.unwrap;*/
-
-	var getTreeScope = TreeScope.getTreeScope;
 
   var shadowHostTable = new WeakMap();
   var nextOlderShadowTreeTable = new WeakMap();
@@ -54,6 +50,8 @@ steal("shadow/treescope",
       return elementFromPoint(this, this.ownerDocument, x, y);
     }
   });
+
+	scope.ShadowRoot = ShadowRoot;
 
 	return ShadowRoot;
 
