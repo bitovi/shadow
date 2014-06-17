@@ -138,6 +138,7 @@ steal("shadow/util/shadow.js",
       if (parentRenderer && parentRenderer.dirty)
         continue;
       renderer.render();
+			renderer.preventMutationObservation();
     }
 
     pendingDirtyRenderers = [];
@@ -483,7 +484,14 @@ steal("shadow/util/shadow.js",
     associateNode: function(node) {
 			var impl = getImpl(node);
       impl.polymerShadowRenderer_ = this;
-    }
+    },
+
+		preventMutationObservation: function() {
+			var observer = scope.getMutationObserver(this.host);
+			if(observer) {
+				observer.takeRecords();
+			}
+		}
   };
 
   // http://w3c.github.io/webcomponents/spec/shadow/#dfn-pool-population-algorithm

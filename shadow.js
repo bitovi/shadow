@@ -10,6 +10,13 @@ steal("mutationobserver",
 		return root ? root.node : null;
 	};
 
+	var mutationObserverMap = new WeakMap();
+
+	scope.getMutationObserver = function(host) {
+		var observer = mutationObserverMap.get(host);
+		return observer;
+	}
+
 	/**
 	 * @method shadow
 	 *
@@ -47,6 +54,8 @@ steal("mutationobserver",
 		
 		// Perform the initial renderering
 		scope.render(element);
+
+		mutationObserverMap.set(element, observer);
 
 		// Take records now to prevent the Observer callback from being called
 		//observer.takeRecords();
