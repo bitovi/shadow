@@ -12,8 +12,8 @@ steal("shadow/util/shadow.js",
 
   var spaceCharRe = /[ \t\n\r\f]/;
 
-  function ShadowRoot(host) {
-		var node = document.createDocumentFragment();
+  function ShadowRoot(host, node) {
+		this.node = node || document.createDocumentFragment();
 
     var oldShadowRoot = host.shadowRoot;
     nextOlderShadowTreeTable.set(this, oldShadowRoot);
@@ -43,7 +43,9 @@ steal("shadow/util/shadow.js",
     },
 
     invalidateShadowRenderer: function() {
-      return shadowHostTable.get(this).invalidateShadowRenderer();
+			var host = this.host();
+
+			return host.invalidateShadowRenderer();
     },
 
     elementFromPoint: function(x, y) {

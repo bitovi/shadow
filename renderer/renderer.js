@@ -1,7 +1,10 @@
 steal("shadow/util/shadow.js",
 			"shadow/shadowroot",
 			"mutationobserver/weakmap",
-			"shadow/util/extend.js", function(scope, ShadowRoot, WeakMap, extend){
+			"shadow/util/extend.js",
+			"shadow/util/oneof.js",
+			"shadow/util/arraysplice.js",
+			function(scope, ShadowRoot, WeakMap, extend, oneOf, ArraySplice){
   /*var Element = scope.wrappers.Element;
   var HTMLContentElement = scope.wrappers.HTMLContentElement;
   var HTMLShadowElement = scope.wrappers.HTMLShadowElement;
@@ -44,9 +47,9 @@ steal("shadow/util/shadow.js",
 	}
 
   function insertBefore(parentNodeWrapper, newChildWrapper, refChildWrapper) {
-    var parentNode = unwrap(parentNodeWrapper);
-    var newChild = unwrap(newChildWrapper);
-    var refChild = refChildWrapper ? unwrap(refChildWrapper) : null;
+    var parentNode = parentNodeWrapper;//unwrap(parentNodeWrapper);
+    var newChild = newChildWrapper; //unwrap(newChildWrapper);
+    var refChild = refChildWrapper ? refChildWrapper/*unwrap(refChildWrapper)*/ : null;
 
     remove(newChildWrapper);
     updateWrapperUpAndSideways(newChildWrapper);
@@ -56,7 +59,7 @@ steal("shadow/util/shadow.js",
       if (parentNodeWrapper.lastChild === parentNodeWrapper.firstChild)
         parentNodeWrapper.firstChild_ = parentNodeWrapper.firstChild;
 
-      var lastChildWrapper = wrap(parentNode.lastChild);
+      var lastChildWrapper = parentNode.lastChild; //wrap(parentNode.lastChild);
       if (lastChildWrapper)
         lastChildWrapper.nextSibling_ = lastChildWrapper.nextSibling;
     } else {
@@ -70,11 +73,12 @@ steal("shadow/util/shadow.js",
   }
 
   function remove(nodeWrapper) {
-    var node = unwrap(nodeWrapper)
+    var node = nodeWrapper; //unwrap(nodeWrapper)
     var parentNode = node.parentNode;
     if (!parentNode)
       return;
 
+		/*
     var parentNodeWrapper = wrap(parentNode);
     updateWrapperUpAndSideways(nodeWrapper);
 
@@ -87,6 +91,7 @@ steal("shadow/util/shadow.js",
       parentNodeWrapper.lastChild_ = nodeWrapper;
     if (parentNodeWrapper.firstChild === nodeWrapper)
       parentNodeWrapper.firstChild_ = nodeWrapper;
+		*/
 
     parentNode.removeChild(node);
   }
@@ -199,7 +204,7 @@ steal("shadow/util/shadow.js",
       // plain array of RenderNodes
       var newChildren = this.childNodes;
       // plain array of real nodes.
-      var oldChildren = getChildNodesSnapshot(unwrap(nodeWrapper));
+      var oldChildren = getChildNodesSnapshot(nodeWrapper);
       var added = opt_added || new WeakMap();
 
       var splices = spliceDiff.calculateSplices(newChildren, oldChildren);
@@ -215,7 +220,7 @@ steal("shadow/util/shadow.js",
 
         var removedCount = splice.removed.length;
         for (var j = 0; j < removedCount; j++) {
-          var wrapper = wrap(oldChildren[oldIndex++]);
+          var wrapper = oldChildren[oldIndex++];//wrap(oldChildren[oldIndex++]);
           if (!added.get(wrapper))
             remove(wrapper);
         }
@@ -419,7 +424,8 @@ steal("shadow/util/shadow.js",
 
     compose: function(node) {
       var children = [];
-      var p = node.shadowRoot || node;
+			var p = scope.getShadowRoot(node) || node;
+      //var p = node.shadowRoot || node;
       for (var child = p.firstChild; child; child = child.nextSibling) {
         if (isInsertionPoint(child)) {
           this.associateNode(p);
@@ -475,7 +481,8 @@ steal("shadow/util/shadow.js",
     },
 
     associateNode: function(node) {
-      node.impl.polymerShadowRenderer_ = this;
+			var impl = getImpl(node);
+      impl.polymerShadowRenderer_ = this;
     }
   };
 
@@ -584,6 +591,14 @@ steal("shadow/util/shadow.js",
     new ShadowRenderer(host).render();
   }
 
+	function getImpl(node) {
+		var impl = node.impl;
+		if(!impl) {
+			impl = node.impl = {};
+		}
+		return impl
+	}
+
   // Need to rerender shadow host when:
   //
   // - a direct child to the ShadowRoot is added or removed
@@ -634,6 +649,7 @@ steal("shadow/util/shadow.js",
       renderer.invalidate();
   };
 
+	scope.render = render;
   scope.getRendererForHost = getRendererForHost;
   scope.getShadowTrees = getShadowTrees;
   scope.renderAllPending = renderAllPending;
@@ -645,5 +661,7 @@ steal("shadow/util/shadow.js",
     insertBefore: insertBefore,
     remove: remove,
   };
+
+	return scope;
 
 });

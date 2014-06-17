@@ -1,21 +1,34 @@
 steal("mutationobserver",
-			"shadow/shadowroot",function(MutationObserver, ShadowRoot){
+			"mutationobserver/weakmap",
+			"shadow/shadowroot",
+			"shadow/renderer", function(MutationObserver, WeakMap, ShadowRoot, scope){
+
+	var shadowRootTable = new WeakMap();
+	
+	scope.getShadowRoot = function(host){
+		var root = shadowRootTable.get(host);
+		return root ? root.node : null;
+	};
 
 	/**
 	 * @method shadow
 	 *
 	 * @param {HTMLElement} element The element that we will be observing
 	 */
-	var shadow = function(element){
+	var shadow = function(element, shadowFragment){
 		var observer = new MutationObserver(mutationsHappened);
-		var root = new ShadowRoot(element);
+
+		var root = new ShadowRoot(element, shadowFragment);
+		shadowRootTable.set(element, root);
 
 		function mutationsHappened(){
 			// Update the element to make it a projection of itself and the fragment
 			//makeProjection(element, fragment);
+			
+			root.invalidateShadowRenderer();
 
 			// Take the records to prevent an infinite recursion situation
-			observer.takeRecords();
+			//observer.takeRecords();
 		}
 
 		var mutationOptions = {
@@ -31,6 +44,9 @@ steal("mutationobserver",
 
 		// Set up an initial projection for this combo.
 		//makeProjection(element, fragment);
+		
+		// Perform the initial renderering
+		scope.render(element);
 
 		// Take records now to prevent the Observer callback from being called
 		//observer.takeRecords();
