@@ -176,7 +176,7 @@ steal("shadow/util/shadow.js",
 
   var spliceDiff = new ArraySplice();
   spliceDiff.equals = function(renderNode, rawNode) {
-    return unwrap(renderNode.node) === rawNode;
+    return renderNode.node === rawNode;
   };
 
   /**
@@ -308,8 +308,9 @@ steal("shadow/util/shadow.js",
         this.resetAll(child);
       }
 
-      if (node.shadowRoot)
-        this.resetAll(node.shadowRoot);
+			var shadowRoot = scope.getShadowRoot(node);
+      if (shadowRoot)
+        this.resetAll(shadowRoot);
 
       if (node.olderShadowRoot)
         this.resetAll(node.olderShadowRoot);
@@ -369,10 +370,10 @@ steal("shadow/util/shadow.js",
 
     // http://w3c.github.io/webcomponents/spec/shadow/#dfn-pool-distribution-algorithm
     poolDistribution: function (node, pool) {
-      if (node instanceof HTMLShadowElement)
+      if (node.tagName === "SHADOW" /*node instanceof HTMLShadowElement*/)
         return;
 
-      if (node instanceof HTMLContentElement) {
+      if (node.tagName === "CONTENT" /*node instanceof HTMLContentElement*/) {
         var content = node;
         this.updateDependentAttributes(content.getAttribute('select'));
 
@@ -508,9 +509,9 @@ steal("shadow/util/shadow.js",
   }
 
   function getShadowInsertionPoint(node) {
-    if (node instanceof HTMLShadowElement)
+    if (node.tagName === "SHADOW" /*node instanceof HTMLShadowElement*/)
       return node;
-    if (node instanceof HTMLContentElement)
+    if (node.tagName === "CONTENT" /*node instanceof HTMLContentElement*/)
       return null;
     for (var child = node.firstChild; child; child = child.nextSibling) {
       var res = getShadowInsertionPoint(child);
@@ -576,12 +577,15 @@ steal("shadow/util/shadow.js",
   }
 
   function isInsertionPoint(node) {
-    return node instanceof HTMLContentElement ||
-           node instanceof HTMLShadowElement;
+		return node.tagName === "CONTENT" || node.tagName === "SHADOW";
+
+    /*return node instanceof HTMLContentElement ||
+           node instanceof HTMLShadowElement;*/
   }
 
   function isShadowHost(shadowHost) {
-    return shadowHost.shadowRoot;
+		return scope.getShadowRoot(shadowHost) != null;
+    //return shadowHost.shadowRoot;
   }
 
   // Returns the shadow trees as an array, with the youngest tree at the
@@ -589,7 +593,7 @@ steal("shadow/util/shadow.js",
   function getShadowTrees(host) {
     var trees = [];
 
-    for (var tree = host.shadowRoot; tree; tree = tree.olderShadowRoot) {
+    for (var tree = scope.getShadowRoot(host) /*host.shadowRoot*/; tree; tree = tree.olderShadowRoot) {
       trees.push(tree);
     }
     return trees;

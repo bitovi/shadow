@@ -30,12 +30,7 @@ steal("mutationobserver",
 
 		function mutationsHappened(){
 			// Update the element to make it a projection of itself and the fragment
-			//makeProjection(element, fragment);
-			
 			root.invalidateShadowRenderer();
-
-			// Take the records to prevent an infinite recursion situation
-			//observer.takeRecords();
 		}
 
 		var mutationOptions = {
@@ -48,17 +43,11 @@ steal("mutationobserver",
 		// the element when any change occurs.
 		observer.observe(element, mutationOptions);
 		observer.observe(root.node, mutationOptions);
-
-		// Set up an initial projection for this combo.
-		//makeProjection(element, fragment);
 		
 		// Perform the initial renderering
 		scope.render(element);
 
 		mutationObserverMap.set(element, observer);
-
-		// Take records now to prevent the Observer callback from being called
-		//observer.takeRecords();
 		
 		// Return the ShadowRoot's fragment to be updated
 		return root.node;
