@@ -227,7 +227,7 @@ steal("shadow/util/shadow.js",
         }
 
         var addedCount = splice.addedCount;
-        var refNode = oldChildren[oldIndex] && wrap(oldChildren[oldIndex]);
+        var refNode = oldChildren[oldIndex] && oldChildren[oldIndex];
         for (var j = 0; j < addedCount; j++) {
           var newChildRenderNode = newChildren[newIndex++];
           var newChildWrapper = newChildRenderNode.node;

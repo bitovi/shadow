@@ -20,13 +20,17 @@ steal("mutationobserver",
 	/**
 	 * @method shadow
 	 *
-	 * @param {HTMLElement} element The element that we will be observing
+	 * @param {HTMLElement} host The element that we will be observing
 	 */
-	var shadow = function(element, shadowFragment){
-		var observer = new MutationObserver(mutationsHappened);
+	var shadow = function(host, shadowFragment){
+		var observer = mutationObserverMap.get(host);
+		var alreadyObserving = !!observer;
+		if(!alreadyObserving) {
+			observer = new MutationObserver(mutationsHappened);
+		}
 
-		var root = new ShadowRoot(element, shadowFragment);
-		shadowRootTable.set(element, root);
+		var root = new ShadowRoot(host, shadowFragment);
+		shadowRootTable.set(host, root);
 
 		function mutationsHappened(){
 			// Update the element to make it a projection of itself and the fragment
@@ -41,13 +45,16 @@ steal("mutationobserver",
 
 		// Observe both the element and the fragment, and we'll update
 		// the element when any change occurs.
-		observer.observe(element, mutationOptions);
+		if(!alreadyObserving) {
+			observer.observe(host, mutationOptions);
+		}
+
 		observer.observe(root.node, mutationOptions);
 		
 		// Perform the initial renderering
-		scope.render(element);
+		scope.render(host);
 
-		mutationObserverMap.set(element, observer);
+		mutationObserverMap.set(host, observer);
 		
 		// Return the ShadowRoot's fragment to be updated
 		return root.node;

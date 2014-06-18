@@ -76,4 +76,58 @@ steal("shadow", function(shadow){
 		stop();
 	});
 
+	test("Content with multiple selects", function(){
+		var host = cel("div");
+		host.innerHTML = "<p>Not used</p><h2>World</h2><h1>Hello</h1></p>";
+
+		var wrapper = cel("div");
+		wrapper.innerHTML = "<p><content select='h1'></content><span>there</span><content select='h2'></content></p>";
+
+		var template = frag();
+
+		shadow(host, template);
+
+		template.appendChild(wrapper);
+
+		setTimeout(function(){
+			equal(host.innerHTML, "<div><p><h1>Hello</h1><span>there</span><h2>World</h2></p></div>", "Both content elements selected");
+
+			start();
+		}, 20);
+
+		stop();
+	});
+
+	test("Shadow element", function(){
+		var host = cel("div");
+		
+		var old = cel("div");
+		old.innerHTML = "<p>Hello 1</p>";
+
+		var young = cel("div");
+		young.innerHTML = "<shadow></shadow><p>Hello 2</p>";
+
+		var shadow1 = frag();
+		var shadow2 = frag();
+
+		shadow(host, shadow1);
+
+		shadow1.appendChild(old);
+
+		setTimeout(function(){
+			equal(host.innerHTML, "<div><p>Hello 1</p></div>", "first item rendered correctly");
+
+			shadow(host, shadow2);
+
+			shadow2.appendChild(young);
+			setTimeout(function(){
+				equal(host.innerHTML, "<div><div><p>Hello 1</p></div><p>Hello 2</p></div>", "Second item rendered correctly");
+
+				start();
+			}, 20);
+		}, 20);
+
+		stop();
+	});
+
 });
