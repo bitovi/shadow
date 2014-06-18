@@ -22,46 +22,46 @@ steal("shadow/util/shadow.js",
 		this.parent = parent;
 	}
 
-  TreeScope.prototype = {
-    renderer: function(){
-      if (this.root instanceof scope.ShadowRoot) {
-        return scope.getRendererForHost(this.root.host);
-      }
-      return null;
-    },
+	TreeScope.prototype = {
+		renderer: function(){
+			if (this.root instanceof scope.ShadowRoot) {
+				return scope.getRendererForHost(this.root.host);
+			}
+			return null;
+		},
 
-    contains: function(treeScope) {
-      for (; treeScope; treeScope = treeScope.parent) {
-        if (treeScope === this)
-          return true;
-      }
-      return false;
-    }
-  };
+		contains: function(treeScope) {
+			for (; treeScope; treeScope = treeScope.parent) {
+				if (treeScope === this)
+					return true;
+			}
+			return false;
+		}
+	};
 
-  function setTreeScope(node, treeScope) {
-    if (node.treeScope_ !== treeScope) {
-      node.treeScope_ = treeScope;
-      for (var sr = node.shadowRoot; sr; sr = sr.olderShadowRoot) {
-        sr.treeScope_.parent = treeScope;
-      }
-      for (var child = node.firstChild; child; child = child.nextSibling) {
-        setTreeScope(child, treeScope);
-      }
-    }
-  }
+	function setTreeScope(node, treeScope) {
+		if (node.treeScope_ !== treeScope) {
+			node.treeScope_ = treeScope;
+			for (var sr = node.shadowRoot; sr; sr = sr.olderShadowRoot) {
+				sr.treeScope_.parent = treeScope;
+			}
+			for (var child = node.firstChild; child; child = child.nextSibling) {
+				setTreeScope(child, treeScope);
+			}
+		}
+	}
 
-  function getTreeScope(node) {
-    if (node.treeScope_)
-      return node.treeScope_;
-    var parent = node.parentNode;
-    var treeScope;
-    if (parent)
-      treeScope = getTreeScope(parent);
-    else
-      treeScope = new TreeScope(node, null);
-    return node.treeScope_ = treeScope;
-  }
+	function getTreeScope(node) {
+		if (node.treeScope_)
+			return node.treeScope_;
+		var parent = node.parentNode;
+		var treeScope;
+		if (parent)
+			treeScope = getTreeScope(parent);
+		else
+			treeScope = new TreeScope(node, null);
+		return node.treeScope_ = treeScope;
+	}
 
 	scope.TreeScope = TreeScope;
 	scope.getTreeScope = getTreeScope;

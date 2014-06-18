@@ -1,7 +1,7 @@
 steal("mutationobserver",
-			"mutationobserver/weakmap",
-			"shadow/shadowroot",
-			"shadow/renderer", function(MutationObserver, WeakMap, ShadowRoot, scope){
+	"mutationobserver/weakmap",
+	"shadow/shadowroot",
+	"shadow/renderer", function(MutationObserver, WeakMap, ShadowRoot, scope){
 
 	var shadowRootTable = new WeakMap();
 	
