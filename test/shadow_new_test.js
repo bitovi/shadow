@@ -54,4 +54,26 @@ steal("shadow", function(shadow){
 		stop();
 	});
 
+	test("Content with select", function(){
+		var host = cel("div");
+		host.innerHTML = "<p>Not used</p><h1>Hello</h1>";
+
+		var wrapper = cel("div");
+		wrapper.innerHTML = "<p><content select='h1'></content></p>";
+		
+		var template = frag();
+
+		shadow(host, template);
+
+		template.appendChild(wrapper);
+
+		setTimeout(function(){
+			equal(host.innerHTML, "<div><p><h1>Hello</h1></p></div>", "The correct element selected");
+
+			start();
+		}, 20);
+
+		stop();
+	});
+
 });
