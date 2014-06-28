@@ -105,15 +105,27 @@ steal("mutationobserver", function(MutationObserver) {
 	 */
 	var shadow = function(element, fragment){
 
+		var self = this;
 		function mutationsHappened(){
 			// Update the element to make it a projection of itself and the fragment
 			makeProjection(element, fragment);
 
 			// Take the records to prevent an infinite recursion situation
 			observer.takeRecords();
+
+			if(self.complete) {
+				self.complete();
+			}
 		}
 
 		var observer = new MutationObserver(mutationsHappened);
+
+		// If benchmarking attach a `complete` function that will be called when
+		// mutations have been taken care of
+		if(this instanceof shadow) {
+			this.complete = function(){};
+			this.observer = observer;
+		}
 
 		var mutationOptions = {
 			attributes: true,

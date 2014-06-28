@@ -1,0 +1,170 @@
+<html>
+<head>
+	<title>shadow Benchmark</title>
+</head>
+<body>
+	<div>
+		<button id="run">Run benchmark</button>
+		<h1><span id="total">0</span><span> milliseconds</span></h1>
+	</div>
+
+	<style>
+		tbody td {
+			border: 1px solid black;
+		}
+	</style>
+	<div>
+		<table>
+			<thead>
+				<tr>
+					<th>Col 1</th>
+					<th>Col 2</th>
+					<th>Col 3</th>
+					<th>Col 4</th>
+					<th>Col 5</th>
+					<th>Col 6</th>
+					<th>Col 7</th>
+					<th>Col 8</th>
+					<th>Col 9</th>
+					<th>Col 10</th>
+				</tr>
+			</thead>
+			<tbody id="tb">
+			</tbody>
+		</table>
+	</div>
+
+	<script type="text/javascript" src="lib/steal/steal.js"></script>
+	<script>
+	steal("shadow", function(shadow) {
+			var root = document.getElementById("tb");
+			var totalEl = document.getElementById("total");
+			var shadows = [];
+
+			document.getElementById("run").onclick = test;
+
+			function shuffle (node){
+				for (var i = node.childNodes.length; i >= 0; i--) {
+    			node.appendChild(node.childNodes[Math.random() * i | 0]);
+				}	
+			}
+
+			function eachLetter(fn) {
+				for(var i = 0; i < 26; i++) {
+					var chr = String.fromCharCode(97 + i);
+					fn(chr);
+				}
+			}
+	
+			function setup() {
+
+				function makeCell(row) {
+					var rand = Math.random();
+					var td = document.createElement('td');
+					td.innerHTML = "<h1>Time</h1>" +
+						"<div class='content'>Content</div>" +
+						/*(function() {
+							var str = "";
+							eachLetter(function(l) {
+								if(Math.random()<.5) {
+									str += "<div class='" + l + "'></div>";
+								}
+							});
+							return str;
+						})() +*/
+						"<p class='ff'>Footer</p>";
+
+					row.appendChild(td);
+					
+					var frag = document.createDocumentFragment();
+					var cont = document.createElement("div");
+					cont.innerHTML = "<header><content select='h1'></content></header>" +
+						"<content select='.content'></content>" +
+						"<div>" +
+						/*(function() {
+						 	var str = "";
+							eachLetter(function(l) {
+								var deep = (Math.random()<.5);
+								if(deep) str += "<div><div><div><div><div>";
+
+								str += "<content select='." + l + "'></content>";
+
+								if(deep) str += "</div></div></div></div></div>";
+							});
+							return str;
+						})() +*/
+						"</div>" +
+						"<footer><content select='.ff'></content></footer>";
+					frag.appendChild(cont);
+
+					var s = new shadow(td, frag);
+					shadows.push({
+						el: td,
+						shadow: s,
+						template: frag
+					});
+				}
+
+				function makeRow() {
+					var row = document.createElement("tr");
+
+					for(var j = 0; j < 10; j++) {
+						makeCell(row);
+					}
+
+					return row;
+				}
+
+				for(var i = 0; i < 100; i++) {
+					var row = makeRow();
+					
+					root.appendChild(row);
+				}
+			}
+
+			function test() {
+				var startAll = new Date(), total = 0,
+						complete = function() {
+							total++;
+							if(total === (100 * 10)) {
+								totalEl.innerHTML = (new Date() - startAll);
+							}
+						};
+
+				function doShuffle(i) {
+					var item = shadows[i];
+					var rand = Math.random();
+					
+					setTimeout(function() {
+						shuffle(item.template.childNodes[0]);
+
+						var classes = ['ff', 'content'];
+						for(var j = 0, len = classes.length; j < len; j++) {
+							var el = item.el.getElementsByClassName(classes[j])[0];
+							el.innerHTML = rand;
+						}
+
+						var start = new Date();
+						var h1 = item.el.getElementsByTagName('h1')[0];
+
+						item.shadow.complete = function() {
+							var time = new Date() - start;
+							
+							h1.textContent = time;
+							item.shadow.observer.takeRecords();
+							complete();
+						};
+					}, 0);
+				}
+
+				for(var i = 0, len = shadows.length; i < len; i++) {
+					doShuffle(i);
+				}
+			}
+
+			setup();
+
+	});
+	</script>
+</body>
+</html>
